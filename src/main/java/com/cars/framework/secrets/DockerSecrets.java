@@ -10,28 +10,28 @@ import java.util.Map;
 
 public class DockerSecrets {
 
-  private static final String SECRETS_DIR = "/run/secrets/"; //default dir for Docker Secrets
+    private static final String SECRETS_DIR = "/run/secrets/"; //default dir for Docker Secrets
 
-  public static Map<String, String> load() throws DockerSecretLoadException {
-    File secretsDir = new File(SECRETS_DIR);
-    return load(secretsDir);
-  }
-
-  public static Map<String, String> loadFromFile(String fileName) throws DockerSecretLoadException {
-    File secretsFile = new File(SECRETS_DIR + fileName);
-    return loadFromFile(secretsFile);
-  }
-
-  public static Map<String, String> loadFromFile(File secretsFile, String fileName)
-      throws DockerSecretLoadException {
-
-    if (!secretsFile.exists()) {
-      throw new DockerSecretLoadException(
-          "Unable to read secrets from file at [" + secretsFile.toPath() + "]");
+    public static Map<String, String> load() throws DockerSecretLoadException {
+        File secretsDir = new File(SECRETS_DIR);
+        return load(secretsDir);
     }
 
-    Map<String, String> secrets = new HashMap<>();
-    
+    public static Map<String, String> loadFromFile(String fileName) throws DockerSecretLoadException {
+        File secretsFile = new File(SECRETS_DIR + fileName);
+        return loadFromFile(secretsFile);
+    }
+
+    public static Map<String, String> loadFromFile(File secretsFile, String fileName)
+            throws DockerSecretLoadException {
+
+        if (!secretsFile.exists()) {
+            throw new DockerSecretLoadException(
+                    "Unable to read secrets from file at [" + secretsFile.toPath() + "]");
+        }
+
+        Map<String, String> secrets = new HashMap<>();
+
         try {
             List<String> lines = Files.readAllLines(secretsFile.toPath(), Charset.defaultCharset());
             for (String line : lines) {
@@ -53,29 +53,29 @@ public class DockerSecrets {
     }
 
 
-  public static Map<String, String> load(File secretsDir) throws DockerSecretLoadException {
+    public static Map<String, String> load(File secretsDir) throws DockerSecretLoadException {
 
-    if (!secretsDir.exists()) {
-      throw new DockerSecretLoadException("Unable to find any secrets under [" + secretsDir + "]");
+        if (!secretsDir.exists()) {
+            throw new DockerSecretLoadException("Unable to find any secrets under [" + secretsDir + "]");
+        }
+
+        File[] secretFiles = secretsDir.listFiles();
+
+        if (secretFiles == null || secretFiles.length == 0) {
+            throw new DockerSecretLoadException("Unable to find any secrets under [" + secretsDir + "]");
+        }
+
+        Map<String, String> secrets = new HashMap<>();
+
+        for (File file : secretFiles) {
+            try {
+                String secret = new String(Files.readAllBytes(file.toPath()));
+                secrets.put(file.getName(), secret);
+            } catch (IOException e) {
+                throw new DockerSecretLoadException(
+                        "Unable to load secret from file [" + file.getName() + "]", e);
+            }
+        }
+        return secrets;
     }
-
-    File[] secretFiles = secretsDir.listFiles();
-
-    if (secretFiles == null || secretFiles.length == 0) {
-      throw new DockerSecretLoadException("Unable to find any secrets under [" + secretsDir + "]");
-    }
-
-    Map<String, String> secrets = new HashMap<>();
-
-    for (File file : secretFiles) {
-      try {
-        String secret = new String(Files.readAllBytes(file.toPath()));
-        secrets.put(file.getName(), secret);
-      } catch (IOException e) {
-        throw new DockerSecretLoadException(
-            "Unable to load secret from file [" + file.getName() + "]", e);
-      }
-    }
-    return secrets;
-  }
 }
