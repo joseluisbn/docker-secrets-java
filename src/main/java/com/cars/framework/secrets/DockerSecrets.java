@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class DockerSecrets {
 
-  private static final String SECRETS_DIR = "/run/secrets/";
+  private static final String SECRETS_DIR = "/run/secrets/"; //default dir for Docker Secrets
 
   public static Map<String, String> load() throws DockerSecretLoadException {
     File secretsDir = new File(SECRETS_DIR);
@@ -22,7 +22,7 @@ public class DockerSecrets {
     return loadFromFile(secretsFile);
   }
 
-  public static Map<String, String> loadFromFile(File secretsFile)
+  public static Map<String, String> loadFromFile(File secretsFile, String fileName)
       throws DockerSecretLoadException {
 
     if (!secretsFile.exists()) {
@@ -31,26 +31,26 @@ public class DockerSecrets {
     }
 
     Map<String, String> secrets = new HashMap<>();
-
-    try {
-      List<String> lines = Files.readAllLines(secretsFile.toPath(), Charset.defaultCharset());
-      for (String line : lines) {
-        int index = line.indexOf("=");
-        if (index < 0) {
-          throw new DockerSecretLoadException(
-              "Invalid secrets in file at [" + secretsFile.toPath() + "]");
+    
+        try {
+            List<String> lines = Files.readAllLines(secretsFile.toPath(), Charset.defaultCharset());
+            for (String line : lines) {
+                int index = line.indexOf("=");
+                if (index < 0) {
+                    secrets.put(fileName, line);
+                } else {
+                    String key = line.substring(0, index);
+                    String value = line.substring(index + 1);
+                    secrets.put(key, value);
+                }
+            }
+        } catch (IOException e) {
+            throw new DockerSecretLoadException(
+                    "Unable to read secrets from file at [" + secretsFile.toPath() + "]");
         }
-        String key = line.substring(0, index);
-        String value = line.substring(index + 1);
-        secrets.put(key, value);
-      }
-    } catch (IOException e) {
-      throw new DockerSecretLoadException(
-          "Unable to read secrets from file at [" + secretsFile.toPath() + "]");
-    }
-    return secrets;
+        return secrets;
 
-  }
+    }
 
 
   public static Map<String, String> load(File secretsDir) throws DockerSecretLoadException {
