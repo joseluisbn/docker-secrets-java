@@ -46,7 +46,7 @@ To load all secrets :
 
 ```java
 Map<String, String> secrets = DockerSecrets.load();
-System.out.println(secrets.get("test-secret1")) // test-secret1-value
+System.out.println(secrets.get("test-secret1")); // test-secret1-value
 ```
 
 Since secrets are files, you can have a secret created with a properties file syntax as below
