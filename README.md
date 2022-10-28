@@ -68,7 +68,7 @@ Then to load that secret:
 
 ```java
 Map<String, String> secrets = DockerSecrets.loadFromFile("test-secret");
-System.out.println(secrets.get("dbuser")) // readonly
+System.out.println(secrets.get("dbuser")); // readonly
 ```
 
 ### Working with Spring framework
