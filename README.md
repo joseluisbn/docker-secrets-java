@@ -32,9 +32,9 @@ dependencies {
 
 ## Usage
 
-Docker secrets are availble to a container under /run/secrets/   
+The location of the secrets within the container defaults to */run/secrets/* in Linux containers, or *C:\ProgramData\Docker\secrets* in Windows containers. You can also specify a custom location.
 
-Given the below secrets :
+Given the below secrets:
 
 ```bash
 $ echo "test-secret1-value" | docker secret create test-secret1 -
@@ -42,7 +42,7 @@ $ echo "test-secret2-value" | docker secret create test-secret2 -
 $ echo "test-secret3-value" | docker secret create test-secret3 -
 ```
 
-To load all secrets : 
+To load all secrets: 
 
 ```java
 Map<String, String> secrets = DockerSecrets.load();
@@ -137,7 +137,7 @@ public class SecretsConfig {
 }
 ``` 
 
-Now you can run you application with the `local` profile :
+Now you can run you application with the `local` profile:
 
 ```bash
 $ java -Dspring.profiles.active=local -jar your.jar
